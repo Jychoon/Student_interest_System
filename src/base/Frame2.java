@@ -1,25 +1,29 @@
 package base;
 
-import java.awt.Font;
+import com.sun.crypto.provider.JceKeyStore;
+import com.sun.javafx.collections.MappingChange;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
+import javax.swing.*;
+
+import static base.View.stu;
+import static base.openFile.addFileInterest;
+import static base.openFile.writerStudent;
 
 public class Frame2 extends JFrame{
 	public static JPanel jPanel=new JPanel();
+	private List[] list=new ArrayList[10];
+	private List inList=new ArrayList();
+	private String addString1;
+	private String addString2;
 	public Frame2(){
 		setTitle("修改信息");
 		setSize(900,900);
@@ -30,8 +34,12 @@ public class Frame2 extends JFrame{
 		//默认字体
 		Font font = new Font("黑体",Font.PLAIN,24);
 		UIManager.put("Label.font", font);
+		for(int i=0;i<10;i++){
+			list[i]=new ArrayList<>();
+		}
 	}
-	public void edit(Student stu) {
+	public void edit(Student stu) throws IOException {
+		jPanel.removeAll();
 		repaint();
 		jPanel.setLayout(null);
 		Font font = new Font("黑体",Font.PLAIN,24);
@@ -85,9 +93,9 @@ public class Frame2 extends JFrame{
 		JLabel interestLabel=new JLabel("兴 趣 爱 好");
 		interestLabel.setBounds(200,200,200,200);
 		jPanel.add(interestLabel);
+		editInterest(jPanel,stu);
 		JButton submit=new JButton("提交");
 		submit.addActionListener(new ActionListener() {
-			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				stu.setName(name.getText());
@@ -96,6 +104,7 @@ public class Frame2 extends JFrame{
 				stu.setSex(sex.getText());
 				stu.setGrade(grade.getText());
 				stu.setMajor(major.getText());
+
 			}
 		});
 		submit.setBounds(300, 800, 100, 50);
@@ -121,5 +130,161 @@ public class Frame2 extends JFrame{
 		jPanel.add(back);
 		add(jPanel);
 	}
-	
+
+	public void editInterest(JPanel panel,Student stu) throws IOException {
+		String pathname="D:\\项目\\Interest.txt";
+		File filename=new File(pathname);
+		InputStreamReader reader = new InputStreamReader(new FileInputStream(filename));
+		BufferedReader br = new BufferedReader(reader);
+		br.readLine();
+		br.mark(1);
+		String  rows=br.readLine();
+		String[] insArray;
+		int row_y=0;
+		int x=1;
+        int btn_y=0;
+		while(rows!=null){
+			System.out.println(x++);
+			insArray= rows.split(" ");
+			if(insArray==null){
+				break;
+			}
+			JLabel insName=new JLabel(insArray[0]);
+			insName.setBounds(200, 300+50*row_y, 100, 100);
+			panel.add(insName);
+
+			for(int i=1;i<insArray.length;i++) {
+				JCheckBox checkBox=new JCheckBox();
+				checkBox.setBounds(170+100*i,330+50*row_y,30,30);
+				jPanel.add(checkBox);
+				JLabel ins = new JLabel(insArray[i]);
+				ins.setBounds(200 + 100*i, 300 + 50 * row_y, 100, 100);
+				panel.add(ins);
+				checkBox.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Point location = checkBox.getLocation();
+                        int x=(int)(location.getX()-170)/100;
+                        int y=(int)(location.getY()-330)/50;
+                        if(checkBox.isSelected()){
+                            addInterest(y,x);
+                        }
+                    }
+                });
+				btn_y=row_y;
+			}
+
+			row_y++;
+			rows=br.readLine();
+
+            }
+        JButton addBtn=new JButton("+");
+        addBtn.setBounds(500,410+50*btn_y,50,20);
+        jPanel.add(addBtn);
+        //输入兴趣框
+        Font font = new Font("黑体",Font.PLAIN,24);
+        JLabel addLabel1=new JLabel("类别");
+        JTextField add1=new JTextField(addString1);
+        addLabel1.setBounds(200,375+50*btn_y,100,100);
+        add1.setBounds(300,400+50*btn_y,100,40);
+        add1.setFont(font);
+        jPanel.add(addLabel1);
+        jPanel.add(add1);
+        addString1=add1.getText();
+        //
+        JTextField add2=new JTextField(addString2);
+        add2.setBounds(400,400+50*btn_y,100,40);
+        add2.setFont(font);
+        jPanel.add(add2);
+        addString2=add2.getText();
+//        add1.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				addString1=add1.getText();
+//				System.out.println("#"+addString1);
+//			}
+//		});
+//		add2.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				addString2=add2.getText();
+//			}
+//		});
+        addBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	addString1=add1.getText();
+            	addString2=add2.getText();
+				try {
+					addFileInterest(addString1,addString2);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				try {
+					edit(stu);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+        });
+		}
+        public void addInterest(int y,int x){
+			int flag=0,flag3=0;
+			String string1,string2;
+			if(list[y].isEmpty()){
+				list[y].add(y+1);
+				list[y].add(x);
+			}
+
+			else if((int)list[y].get(0)==(y+1)){
+                flag=0;
+
+				for(int i = 1 ; i < list[y].size() ; i++) {
+					if((int)list[y].get(i)==x)
+						break;
+					else{
+						flag=1;
+					}
+				}
+				if(flag==1){
+					list[y].add(x);
+				}
+			}
+			string2=list[y].toString();
+			string1=inList.toString();
+			if(flag==0&&string1.indexOf(string2)==-1){
+				inList.add(list[y]);
+			}
+
+			String string=inList.toString();
+			StringBuffer stringBuffer=new StringBuffer();
+			int begin=0,end=0;
+			for(int i=0;i<string.length();i++){
+				int flag2=0;
+				if(string.charAt(i)=='['){
+					Character c=string.charAt(i+1);
+					if(Character.isDigit(c)){
+						begin=i+1;
+					}
+				}
+				if(string.charAt(i)==']'){
+					Character c=string.charAt(i-1);
+					if(Character.isDigit(c)){
+						end=i;
+						flag2=1;
+					}
+				}
+				if(flag2==1) {
+					string = inList.toString();
+					stringBuffer.append("{");
+					stringBuffer.append(string.substring(begin,end));
+					stringBuffer.append("}");
+					String s=stringBuffer.toString();
+					s=s.replaceAll(" ","");
+                    System.out.println(s);
+					stu.setInterest(s);
+				}
+
+			}
+        }
 }

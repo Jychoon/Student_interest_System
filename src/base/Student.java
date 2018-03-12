@@ -6,15 +6,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import static base.openFile.readerStudent;
+
 public class Student extends StudentInfo{
 	public Student() throws IOException {
 		ReadInfo();
 	}
 	public void ReadInfo() throws IOException {
-		String pathname="D:\\项目\\StudentInfo.txt";
-		File filename=new File(pathname);
-		InputStreamReader reader = new InputStreamReader(new FileInputStream(filename)); 
-        BufferedReader br = new BufferedReader(reader);
+		BufferedReader br=readerStudent();
         String stuString=br.readLine();
         stuString=br.readLine();
         String[] info=stuString.split(" ");
@@ -27,4 +26,7 @@ public class Student extends StudentInfo{
         setInterest(info[5]);
         System.out.println(info[5]);
 	}
+	public String toString(){
+	    return getName()+" "+getId()+" "+getSex()+" "+getGrade()+" "+getMajor()+" "+getInterest();
+    }
 }

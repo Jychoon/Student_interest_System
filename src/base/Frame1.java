@@ -16,6 +16,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+import static base.openFile.readerInterest;
+import static base.openFile.readerStudent;
+
 public class Frame1 extends JFrame{
 	public static Frame2 frame2=new Frame2();
 	public static JPanel jPanel=new JPanel();
@@ -89,8 +92,12 @@ public class Frame1 extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
 				frame2.setVisible(true);
-				frame2.edit(stu);
+				try {
+					frame2.edit(stu);
+				} catch (IOException e1) {
+					e1.printStackTrace();
 				}
+			}
 		});
 		edit.setBounds(300, 800, 100, 50);
 		jPanel.add(edit);
@@ -101,14 +108,11 @@ public class Frame1 extends JFrame{
 		add(jPanel);
 	}
 	public void addInterest(JPanel panel,Student stu) throws IOException {
-		JLabel insLabel=new JLabel();
-		String pathname="D:\\项目\\Interest.txt";
-		File filename=new File(pathname);
-		InputStreamReader reader = new InputStreamReader(new FileInputStream(filename)); 
-        BufferedReader br = new BufferedReader(reader);
-        br.readLine();
-        br.mark(1);
+		BufferedReader br=readerInterest();
+		br.readLine();
+        br.mark(100);
         String insString=stu.getInterest();   //兴趣的编码
+		System.out.println(stu.getInterest());
         ArrayList insArray=new ArrayList<String>(); //编码数组保存在数组中
         int j=0;
         for(int i=0;i<insString.length();i++) {
@@ -121,7 +125,7 @@ public class Frame1 extends JFrame{
         		insArray.add(sub);
         	}
         }
-        
+
         for(int i=0;i<insArray.size();i++) {   //将编码分隔为数字
         	String s=  insArray.get(i).toString();
         	String[] sArray=s.split(",");
