@@ -1,8 +1,9 @@
 package base;
 
 public class StudentInfo {
-	private String id;   //学号
+	private String id;   //id
 	private String name; //姓名
+	private String No; //学号
 	private String sex; //性别
 	private String grade;//年级
 	private String major; //专业
@@ -43,5 +44,12 @@ public class StudentInfo {
 	public void setInterest(String interest) {
 		this.interest = interest;
 	}
-	
+
+	public String getNo() {
+		return No;
+	}
+
+	public void setNo(String no) {
+		No = no;
+	}
 }

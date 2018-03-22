@@ -16,6 +16,7 @@ import javax.swing.*;
 
 import static base.View.stu;
 import static base.openFile.addFileInterest;
+import static base.openFile.addStudent;
 import static base.openFile.writerStudent;
 
 public class Frame2 extends JFrame{
@@ -44,11 +45,12 @@ public class Frame2 extends JFrame{
 		jPanel.setLayout(null);
 		Font font = new Font("黑体",Font.PLAIN,24);
 		//标题
-		
 		JLabel title=new JLabel("修 改 信 息",JLabel.CENTER);
 		title.setBounds(300, 0, 300, 100);
 		title.setFont(new Font("黑体",Font.PLAIN, 40));
 		jPanel.add(title);
+		//id号
+		String id=stu.getId();
 		//姓名
 		JLabel nameLabel=new JLabel("姓 名:");
 		nameLabel.setBounds(200, 100, 100, 100);
@@ -58,13 +60,13 @@ public class Frame2 extends JFrame{
 		name.setFont(font);
 		jPanel.add(name);
 		//学号
-		JLabel idLabel=new JLabel("学 号:");
-		JTextField id=new JTextField(stu.getId());
-		idLabel.setBounds(450,100,100,100);
-		id.setBounds(550,130,150,40);
-		id.setFont(font);
-		jPanel.add(idLabel);
-		jPanel.add(id);
+		JLabel noLabel=new JLabel("学 号:");
+		JTextField no=new JTextField(stu.getNo());
+		noLabel.setBounds(450,100,100,100);
+		no.setBounds(550,130,150,40);
+		no.setFont(font);
+		jPanel.add(noLabel);
+		jPanel.add(no);
 		//性别
 		JLabel sexLabel=new JLabel("性 别:");
 		JTextField sex=new JTextField(stu.getSex());
@@ -94,21 +96,64 @@ public class Frame2 extends JFrame{
 		interestLabel.setBounds(200,200,200,200);
 		jPanel.add(interestLabel);
 		editInterest(jPanel,stu);
-		JButton submit=new JButton("提交");
-		submit.addActionListener(new ActionListener() {
+		JButton edit=new JButton("更改");
+		edit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				stu.setName(name.getText());
 				System.out.println(name.getText()+stu.getName());
-				stu.setId(id.getText());
+				stu.setNo(no.getText());
 				stu.setSex(sex.getText());
 				stu.setGrade(grade.getText());
 				stu.setMajor(major.getText());
+				//mode 1 编辑
+				try {
+					addStudent(stu,"edit");
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 
 			}
 		});
-		submit.setBounds(300, 800, 100, 50);
-		jPanel.add(submit);
+		edit.setBounds(200, 800, 80, 50);
+		jPanel.add(edit);
+		JButton addInfo=new JButton("添加");
+		addInfo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stu.setName(name.getText());
+				System.out.println(name.getText()+stu.getName());
+				stu.setNo(no.getText());
+				stu.setSex(sex.getText());
+				stu.setGrade(grade.getText());
+				stu.setMajor(major.getText());
+				//mode 1 编辑
+				try {
+					addStudent(stu,"add");
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+
+			}
+		});
+		addInfo.setBounds(300, 800, 80, 50);
+		jPanel.add(addInfo);
+		JButton delete=new JButton("删除");
+		delete.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stu.setId(id);
+				try {
+					addStudent(stu,"delete");
+					stu.ReadInfo(Integer.parseInt(id)+1);
+
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		delete.setBounds(400, 800, 80, 50);
+		jPanel.add(delete);
 		//返回
 		JButton back=new JButton("返回");
 		back.setBounds(500, 800, 100, 50);
@@ -132,7 +177,7 @@ public class Frame2 extends JFrame{
 	}
 
 	public void editInterest(JPanel panel,Student stu) throws IOException {
-		String pathname="D:\\项目\\Interest.txt";
+		String pathname="D:\\JavaCode\\RJ2Project\\Interest.txt";
 		File filename=new File(pathname);
 		InputStreamReader reader = new InputStreamReader(new FileInputStream(filename));
 		BufferedReader br = new BufferedReader(reader);

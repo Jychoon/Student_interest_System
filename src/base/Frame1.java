@@ -1,6 +1,6 @@
 package base;
 
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -10,12 +10,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
+import javax.swing.*;
 
+import static base.openFile.findStudent;
 import static base.openFile.readerInterest;
 import static base.openFile.readerStudent;
 
@@ -35,6 +32,7 @@ public class Frame1 extends JFrame{
 	}
 	public void addComponent(Student stu) throws IOException {
 		jPanel.removeAll();
+		repaint();
 		System.out.println(" 3"+stu.getName());
 		jPanel.setLayout(null);
 		//标题
@@ -42,6 +40,8 @@ public class Frame1 extends JFrame{
 		title.setBounds(300, 0, 300, 100);
 		title.setFont(new Font("黑体",Font.PLAIN, 40));
 		jPanel.add(title);
+		//id
+		String id=stu.getId();
 		//姓名
 		JLabel nameLabel=new JLabel("姓 名:");
 		JLabel name=new JLabel(""+stu.getName());
@@ -50,12 +50,12 @@ public class Frame1 extends JFrame{
 		jPanel.add(nameLabel);
 		jPanel.add(name);
 		//学号
-		JLabel idLabel=new JLabel("学 号:");
-		JLabel id=new JLabel(""+stu.getId());
-		idLabel.setBounds(450,100,100,100);
-		id.setBounds(550,100,300,100);
-		jPanel.add(idLabel);
-		jPanel.add(id);
+		JLabel noLabel=new JLabel("学 号:");
+		JLabel no=new JLabel(""+stu.getNo());
+		noLabel.setBounds(450,100,100,100);
+		no.setBounds(550,100,300,100);
+		jPanel.add(noLabel);
+		jPanel.add(no);
 		//性别
 		JLabel sexLabel=new JLabel("性 别:");
 		JLabel sex=new JLabel(""+stu.getSex());
@@ -83,7 +83,31 @@ public class Frame1 extends JFrame{
 		jPanel.add(interestLabel);
 		//棋类
 		addInterest(jPanel,stu);
-		
+		//查找
+		JTextField find=new JTextField();
+		find.setBounds(220,800,100,50);
+		jPanel.add(find);
+		JButton findBtn=new JButton("查找");
+		findBtn.setBounds(320,800,100,50);
+		jPanel.add(findBtn);
+		String findName=null;
+		findBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					System.out.println(find.getText());
+					if(findStudent(find.getText())!=null){
+						addComponent(findStudent(find.getText()));
+					}
+					else{
+						JOptionPane.showMessageDialog(jPanel, "无对象", "提示",JOptionPane.WARNING_MESSAGE);
+					}
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+
+			}
+		});
 		//修改按鈕
 		JButton edit=new JButton("修改");
 		edit.addActionListener(new ActionListener() {
@@ -99,13 +123,43 @@ public class Frame1 extends JFrame{
 				}
 			}
 		});
-		edit.setBounds(300, 800, 100, 50);
+		edit.setBounds(500, 800, 100, 50);
 		jPanel.add(edit);
-		//返回
-		JButton back=new JButton("返回");
-		back.setBounds(500, 800, 100, 50);
-		jPanel.add(back);
+		//上一个
+		JButton previous=new JButton("<");
+		previous.setBounds(0,300,50,50);
+		//下一个
+		JButton next=new JButton(">");
+		next.setBounds(850,300,50,50);
+		previous.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int row=Integer.parseInt(id)-1;
+					stu.ReadInfo(row);
+					addComponent(stu);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		next.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					System.out.println(id);
+					int row=Integer.parseInt(id)+1;
+					stu.ReadInfo(row);
+					addComponent(stu);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		jPanel.add(next);
+		jPanel.add(previous);
 		add(jPanel);
+		repaint();
 	}
 	public void addInterest(JPanel panel,Student stu) throws IOException {
 		BufferedReader br=readerInterest();
